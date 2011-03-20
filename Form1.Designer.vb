@@ -142,11 +142,11 @@ Partial Class Form1
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 27.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label2.ForeColor = System.Drawing.Color.Black
-        Me.Label2.Location = New System.Drawing.Point(130, 9)
+        Me.Label2.Location = New System.Drawing.Point(115, 9)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(220, 42)
         Me.Label2.TabIndex = 13
-        Me.Label2.Text = "iBooty V2.0"
+        Me.Label2.Text = "iBooty V2.2"
         '
         'Label13
         '
@@ -207,7 +207,7 @@ Partial Class Form1
         Me.MinimizeBox = False
         Me.Name = "Form1"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "iBooty 2.0 -- By: iH8sn0w"
+        Me.Text = "iBooty 2.1 -- By: iH8sn0w"
         CType(Me.line, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()

@@ -1,6 +1,4 @@
-﻿Imports System
-Imports System.Management
-Imports System.Windows.Forms
+﻿Imports System.Management
 
 Public Class Form1
     Public cmdline As String
@@ -13,63 +11,26 @@ Public Class Form1
     Public icountMatch As Integer
     Private WithEvents BackgroundWorker1 As System.ComponentModel.BackgroundWorker
     Private WithEvents BackgroundWorker2 As System.ComponentModel.BackgroundWorker
+    Private WithEvents BackgroundWorker3 As System.ComponentModel.BackgroundWorker
     Private WithEvents doit As System.ComponentModel.BackgroundWorker
-    Function HighlightWords(ByVal rtb As RichTextBox, ByVal sFindString As String, ByVal lColor As System.Drawing.Color) As Integer
-
-        Dim iFoundPos As Integer 'Position of first character of match
-        Dim iFindLength As Integer       'Length of string to find
-        Dim iOriginalSelStart As Integer
-        Dim iOriginalSelLength As Integer
-        Dim iMatchCount As Integer      'Number of matches
-
-        'Save the insertion points current location and length
-        iOriginalSelStart = rtb.SelectionStart
-        iOriginalSelLength = rtb.SelectionLength
-
-        'Cache the length of the string to find
-        iFindLength = Len(sFindString) + 16
-
-        'Attempt to find the first match
-        iFoundPos = rtb.Find(sFindString, 0, RichTextBoxFinds.NoHighlight)
-        While iFoundPos > 0
-            iMatchCount = iMatchCount + 1
-
-            console.SelectionStart = iFoundPos
-            'The SelLength property is set to 0 as soon as you change SelStart
-            console.SelectionLength = iFindLength
-            'rtb.SelectionBackColor = lColor
-
-            'console.Select(iFoundPos + 5, iFindLength - 5)
-            'ECID = console.SelectedText
-            'Attempt to find the next match
-            iFoundPos = rtb.Find(sFindString, iFoundPos + iFindLength, RichTextBoxFinds.NoHighlight)
-        End While
-
-        'Restore the insertion point to its original location and length
-        rtb.SelectionStart = iOriginalSelStart
-        rtb.SelectionLength = iOriginalSelLength
-
-        'Return the number of matches
-        HighlightWords = iMatchCount
-    End Function
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         ComboBox1.SelectedItem = "Select your iDevice:"
-        If File_Exists(Application.StartupPath & "\files\ibss.3gs.dfu") = True Then
+        If File_Exists(Application.StartupPath & "\files\llb.3gs.dfu") = True Then
             ComboBox1.Items.Add("iPhone 3GS")
         End If
-        If File_Exists(Application.StartupPath & "\files\ibss.4.dfu") = True Then
+        If File_Exists(Application.StartupPath & "\files\llb.4.dfu") = True Then
             ComboBox1.Items.Add("iPhone 4")
         End If
-        If File_Exists(Application.StartupPath & "\files\ibss.ipt2g.dfu") = True Then
+        If File_Exists(Application.StartupPath & "\files\llb.ipt2g.dfu") = True Then
             ComboBox1.Items.Add("iPod Touch 2G")
         End If
-        If File_Exists(Application.StartupPath & "\files\ibss.ipt3.dfu") = True Then
+        If File_Exists(Application.StartupPath & "\files\llb.ipt3.dfu") = True Then
             ComboBox1.Items.Add("iPod Touch 3G")
         End If
-        If File_Exists(Application.StartupPath & "\files\ibss.ipt4.dfu") = True Then
+        If File_Exists(Application.StartupPath & "\files\llb.ipt4.dfu") = True Then
             ComboBox1.Items.Add("iPod Touch 4")
         End If
-        If File_Exists(Application.StartupPath & "\files\ibss.ipad.dfu") = True Then
+        If File_Exists(Application.StartupPath & "\files\llb.ipad.dfu") = True Then
             ComboBox1.Items.Add("iPad")
         End If
         If File_Exists(Application.StartupPath & "\files\notice.read") = False Then
@@ -102,7 +63,7 @@ Public Class Form1
             End Try
         End If
         Me.Hide()
-        Label2.Left = (Me.Width / 2) - (dfuinstructions.Width / 2)
+        Label2.Left = (Me.Width / 2) - (Label2.Width / 2)
         Me.Show()
         Me.BringToFront()
     End Sub
@@ -118,50 +79,24 @@ Public Class Form1
         Label2.Visible = True
         ProgressBar1.Style = ProgressBarStyle.Blocks
         'Do what we gotta do =)
-        If iDevice = "ipt2g" Then
-            Status.Text = "Exploiting with steaks4uce..."
-            cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -e"
-            ExecCmd(cmdline, True)
-            Delay(2)
-            ProgressBar1.Value = 25
-        Else
-            Status.Text = "Exploiting with limera1n..."
-            cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -e"
-            ExecCmd(cmdline, True)
-            Delay(1.0)
-            ProgressBar1.Value = 25
-        End If
-        Status.Text = "Uploading iBSS..."
-        cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -f " & Quote.Text & "files\ibss." & iDevice & ".dfu" & Quote.Text
+        Status.Text = "Exploiting with limera1n..."
+        cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -e"
         ExecCmd(cmdline, True)
         ProgressBar1.Value = 50
-        Status.Text = "Resetting USB..."
-        Delay(1)
-        Status.Text = "Waiting for iBSS..."
-        'Start Recovery Mode Searching...
-        BackgroundWorker2 = New System.ComponentModel.BackgroundWorker
-        BackgroundWorker2.RunWorkerAsync()
+        'Search for the return of the device...
+        Status.Text = "Waiting for device..."
+        Delay(3.5)
+        BackgroundWorker3 = New System.ComponentModel.BackgroundWorker
+        BackgroundWorker3.RunWorkerAsync()
+    End Sub
+    Public Sub UploadiBSS()
+        Status.Text = "Uploading LLB..."
+        cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -f " & Quote.Text & "files\llb." & iDevice & ".dfu" & Quote.Text
+        ExecCmd(cmdline, True)
+        Status.Text = "Booting..."
+        Call UploadiBoot()
     End Sub
     Public Sub UploadiBoot()
-        'Upload Payload...
-        ProgressBar1.Value = 75
-        Status.Text = "Uploading greenpois0n/iBoot Payload..."
-        cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -f " & Quote.Text & "files\ibss." & iDevice & ".payload" & Quote.Text
-        ExecCmd(cmdline, True)
-        Status.Text = "Executing greenpois0n/iBoot Payload..."
-        cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -c " & Quote.Text & "go" & Quote.Text
-        ExecCmd(cmdline, True)
-        'Uploading iBoot..
-        Delay(1)
-        Status.Text = "Executing iBoot..."
-        If iDevice = "ipt2g" Then
-            cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -c " & Quote.Text & "go jump 0x0A013EA0" & Quote.Text
-            ExecCmd(cmdline, True)
-        Else
-            cmdline = Quote.Text & "files\s-irecovery.exe" & Quote.Text & " -c " & Quote.Text & "go jump 0x410192A0" & Quote.Text
-            ExecCmd(cmdline, True)
-        End If
-        'No, that jump number isn't just a random number ;)
         ProgressBar1.Value = 100
         iWant2Exit = False
         Button3.Visible = False
@@ -742,6 +677,12 @@ Public Class Form1
         ProgressBar1.Value = 0
         Button1.Visible = True
         Label2.Visible = True
+        Try
+            BackgroundWorker1.CancelAsync()
+            BackgroundWorker2.CancelAsync()
+            BackgroundWorker3.CancelAsync()
+        Catch ex As Exception
+        End Try
         Button3.Visible = False
         Button3.Enabled = True
         Button3.Text = "Reset DFU Instructions"
@@ -772,6 +713,32 @@ Public Class Form1
         Else
             ResetDFU = True
         End If
+    End Sub
+    Public Sub Search_DFU2(ByVal sender As System.Object, ByVal e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker3.DoWork
+        DFUConnected = False
+        RecoveryConnected = False
+        Do Until DFUConnected = True
+            If killit = True Then
+                killit = False
+                Exit Sub
+            End If
+            'Searching for DFU...
+            console.Text = " "
+            Dim searcher As New ManagementObjectSearcher( _
+                      "root\CIMV2", _
+                      "SELECT * FROM Win32_PnPEntity WHERE Description = 'Apple Recovery (DFU) USB Driver'")
+            For Each queryObj As ManagementObject In searcher.Get()
+
+                console.Text += (queryObj("Description"))
+            Next
+            If console.Text.Contains("DFU") Then
+                If killit = True Then
+                    killit = False
+                    Exit Sub
+                End If
+                Call UploadiBSS()
+            End If
+        Loop
     End Sub
     Public Sub Search_DFU(ByVal sender As System.Object, ByVal e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
         DFUConnected = False
@@ -834,42 +801,42 @@ Public Class Form1
             Button1.Enabled = False
             Button1.Text = "Select your iDevice!"
             iDevice = ""
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w"
             line.Visible = True
         ElseIf ComboBox1.SelectedItem = "iPhone 3GS" Then
             Button1.Enabled = True
             Button1.Text = "Start"
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
             iDevice = "3gs"
             line.Visible = False
         ElseIf ComboBox1.SelectedItem = "iPhone 4" Then
             Button1.Enabled = True
             Button1.Text = "Start"
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
             iDevice = "4"
             line.Visible = False
         ElseIf ComboBox1.SelectedItem = "iPod Touch 2G" Then
             Button1.Enabled = True
             Button1.Text = "Start"
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
             iDevice = "ipt2g"
             line.Visible = False
         ElseIf ComboBox1.SelectedItem = "iPod Touch 3G" Then
             Button1.Enabled = True
             Button1.Text = "Start"
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
             iDevice = "ipt3"
             line.Visible = False
         ElseIf ComboBox1.SelectedItem = "iPod Touch 4" Then
             Button1.Enabled = True
             Button1.Text = "Start"
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
             iDevice = "ipt4"
             line.Visible = False
         ElseIf ComboBox1.SelectedItem = "iPad" Then
             Button1.Enabled = True
             Button1.Text = "Start"
-            Me.Text = "iBooty 2.0 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
+            Me.Text = "iBooty 2.2 -- By: iH8sn0w" & " - [" & ComboBox1.SelectedItem & "]"
             iDevice = "ipad"
             line.Visible = False
         End If
